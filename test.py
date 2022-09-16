@@ -1,7 +1,9 @@
 # coding=utf-8 
 from selenium import webdriver
 import time
+# from webdriver.chrome.options import Options
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 import configparser
@@ -33,12 +35,16 @@ chrome_options.add_argument('--no-sandbox')  # root用户不加这条会无法�
 
 # 1.打开浏览器
 def fun1(uid):
+
     driver = webdriver.Chrome(options=chrome_options)  # 获取浏览器句柄
     try:
         wait = WebDriverWait(driver, 3)  # 后面可以使用wait对特定元素进行等待
         # 3.访问打卡页面并模拟点击来打卡
         url_login = "http://ehallplatform.xust.edu.cn/default/jkdk/mobile/mobJkdkAdd_test.jsp?uid="+ uid
-        driver.get(url_login)
+
+        driver.get(url=url_login)
+        # driver.find_elements(By.CSS_SELECTOR,url_login)
+        # driver.find_element(By.CSS_SELECTOR)
 
         time.sleep(3)
 
@@ -57,19 +63,19 @@ def fun1(uid):
         time.sleep(1)
         input = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'input.srk.jiaodian')))
 
-        target = driver.find_elements_by_css_selector('input.srk.jiaodian')[1]
+        target = driver.find_elements(by=By.CSS_SELECTOR,value='input.srk.jiaodian')[1]
         driver.execute_script("arguments[0].scrollIntoView();", target)
 
 
         time.sleep(2)
-        driver.find_elements_by_css_selector('input.srk.jiaodian')[1].click()
+        driver.find_elements(by=By.CSS_SELECTOR,value='input.srk.jiaodian')[1].click()
 
         driver.switch_to.active_element.send_keys(u'西安科技大学')
 
         # 今日体温
         jQuery = r'$("input[name=\'jrtwfw5\']")[0].click()'
         driver.execute_script(jQuery)
-        radios = driver.find_elements_by_css_selector('input[type=radio]')
+        radios = driver.find_elements(by=By.CSS_SELECTOR,value='input[type=radio]')
         for radio in radios:
             if radio.get_attribute(u"name") == u"jrsfzx3" and radio.get_attribute(u"value") == u"是":
                 if not radio.is_selected():
@@ -80,7 +86,7 @@ def fun1(uid):
             #     if not radio.is_selected():
             #         radio.click()
         # 获取提交按钮并点击	jiaodian = driver.find_elements_by_xpath('//*[@id="xxd"]/ul/li/input')[0]
-        driver.find_element_by_css_selector('span#submit').click()
+        driver.find_elements(by=By.CSS_SELECTOR,value='span#submit')[0].click()
 
         dig_confirm = driver.switch_to.alert
         # 打印对话框的内容
@@ -89,7 +95,7 @@ def fun1(uid):
         dig_confirm.accept()
 
         try:
-            driver.find_elements_by_xpath("//*[text()='已完成']")
+            driver.find_elements(by=By.XPATH,value="//*[text()='已完成']")
             driver.quit()
             print("\t打卡成功")
             return True, "none"
